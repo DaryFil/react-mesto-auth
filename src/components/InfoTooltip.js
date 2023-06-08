@@ -1,26 +1,23 @@
-const InfoTooltip = ({successful, text}) => {}
+import success from "../images/success.svg";
+import fail from "../images/fail.svg";
 
- return (
-    <div
-      className={`popup `}
-      onClick={}
-    >
+const InfoTooltip = ({ onClose, isOpen, isSuccess, text }) => {
+  return (
+    <div className={`popup popup_inform ${isOpen ? "popup_opened" : ""}`}>
       <div className="popup__container">
         <img
-          className="popup__info-image"
-          src={}
-          alt="успешная регистрация"
+          className="popup__inform-image"
+          src={isSuccess ? success : fail}
+          alt="регистрация"
         />
-        <h2 className="popup__title popup__title_type_info">
-
-        </h2>
+        <h2 className="popup__title popup__title_inform">{text}</h2>
         <button
           className="popup__button-close opacity"
           type="button"
-        onClick={}
+          onClick={onClose}
         />
       </div>
     </div>
   );
-
+};
 export default InfoTooltip;

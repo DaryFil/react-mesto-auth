@@ -3,6 +3,7 @@ import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import Register from "./Register.js";
 import Login from "./Login.js";
 import ProtectedRoute from "./ProtectedRoute.js";
+import InfoTooltip from "./InfoTooltip.js";
 
 import Header from "./Header.js";
 import Main from "./Main.js";
@@ -28,6 +29,11 @@ function App() {
   const [cards, setCards] = useState([]);
 
   const [isAuth, setIsAuth] = useState(false);
+
+  const [tooltipMessage, setTooltipMessage] = useState("");
+  const [isTooltipOpen, setIsTooltipOpen] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
   const [hasToken, setHasToken] = useState(
     Boolean(localStorage.getItem("jwt"))
   );
@@ -61,6 +67,7 @@ function App() {
     setIsEditProfilePopupOpen(false);
     setIsConfirmPopupOpen(false);
     setSelectedCard({});
+    setIsTooltipOpen(false);
   }
 
   function handleCardLike(card, isLiked) {
@@ -116,25 +123,43 @@ function App() {
   }
 
   function handleRegister(data) {
-    apiAuth.register(data).then(() => {
-      navigate("/sign-in")
-      // открытие модалки
-      // картинка 
-      // текст модалки;
-    });
+    apiAuth
+      .register(data)
+      .then(() => {
+        setIsSuccess(true);
+        setIsTooltipOpen(true);
+        setTooltipMessage("Вы успешно зарегистрировались!");
+        navigate("/sign-in");
+      })
+      .catch((error) => {
+        setIsTooltipOpen(true);
+        setIsSuccess(false);
+        setTooltipMessage("Что-то пошло не так! Попробуйте ещё раз.");
+        console.log(`Ошибка: ${error}`);
+      });
   }
 
   function handleLogin(data) {
-    apiAuth.login(data).then((res) => {
-      localStorage.setItem("jwt", res.token);
-      setHasToken(true)
-      // блок catch открытие модалки
-      // картинка 
-      // текст модалки;
-            ;
-    });
+    apiAuth
+      .login(data)
+      .then((res) => {
+        localStorage.setItem("jwt", res.token);
+        setHasToken(true);
+        setIsAuth(true);
+        setIsSuccess(true);
+        navigate("/sign-up");
+      })
+      .catch((error) => {
+        console.log(`Ошибка: ${error}`);
+      });
   }
 
+  function handleLogout() {
+    localStorage.removeItem("jwt");
+    setIsAuth(false);
+    setHasToken(false);
+    setUserData({});
+  }
   useEffect(() => {
     Promise.all([api.getUserInfo(), api.getInitialCards()])
       .then(([userData, cards]) => {
@@ -147,7 +172,7 @@ function App() {
   useEffect(() => {
     if (hasToken) {
       apiAuth.checkAuth().then((res) => {
-        setUserData(res);
+        setUserData(res.data);
         setIsAuth(true);
         navigate("/");
       });
@@ -157,7 +182,7 @@ function App() {
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
-        <Header />
+        <Header userData={userData} isAuth={isAuth} onLogout={handleLogout} />
         <Routes>
           <Route
             path="/"
@@ -218,7 +243,12 @@ function App() {
           onClose={closeAllPopups}
         />
 
-        {/* <InfoTooltip onClose={closeAllPopups} /> */}
+        <InfoTooltip
+          isOpen={isTooltipOpen}
+          onClose={closeAllPopups}
+          isSuccess={isSuccess}
+          text={tooltipMessage}
+        />
       </div>
     </CurrentUserContext.Provider>
   );
