@@ -3,7 +3,7 @@ import fail from "../images/fail.svg";
 
 const InfoTooltip = ({ onClose, isOpen, isSuccess, text }) => {
   return (
-    <div className={`popup popup_inform ${isOpen ? "popup_opened" : ""}`}>
+    <div className={`popup popup__inform ${isOpen ? "popup_opened" : ""}`}>
       <div className="popup__container">
         <img
           className="popup__inform-image"
