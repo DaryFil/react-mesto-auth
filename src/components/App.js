@@ -150,6 +150,9 @@ function App() {
         navigate("/sign-up");
       })
       .catch((error) => {
+        setIsTooltipOpen(true);
+        setIsSuccess(false);
+        setTooltipMessage("Что-то пошло не так! Попробуйте ещё раз.");
         console.log(`Ошибка: ${error}`);
       });
   }
@@ -161,21 +164,26 @@ function App() {
     setUserData({});
   }
   useEffect(() => {
+    if (isAuth) {
     Promise.all([api.getUserInfo(), api.getInitialCards()])
       .then(([userData, cards]) => {
         setCurrentUser(userData);
         setCards(cards);
       })
       .catch((error) => console.log(`Ошибка: ${error}`));
-  }, []);
+    }
+  }, [isAuth]);
 
   useEffect(() => {
     if (hasToken) {
-      apiAuth.checkAuth().then((res) => {
-        setUserData(res.data);
-        setIsAuth(true);
-        navigate("/");
-      });
+      apiAuth
+        .checkAuth()
+        .then((res) => {
+          setUserData(res.data);
+          setIsAuth(true);
+          navigate("/");
+        })
+        .catch((error) => console.log(`Ошибка: ${error}`));
     }
   }, [hasToken]);
 
@@ -208,6 +216,10 @@ function App() {
             element={<Register onRegister={handleRegister} />}
           />
           <Route path="/sign-in" element={<Login onLogin={handleLogin} />} />
+          <Route
+            path="/*"
+            element={<Navigate to={isAuth ? "/" : "/sign-in"} />}
+          />
         </Routes>
 
         <Footer />
