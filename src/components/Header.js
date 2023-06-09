@@ -12,7 +12,7 @@ export default function Header({ userData, isAuth, onLogout }) {
     switch (location.pathname) {
       case "/sign-in":
         setLinkPath("/sign-up");
-        setLinkText("Зарегистрироваться");
+        setLinkText("Регистрация");
         break;
       case "/sign-up":
         setLinkPath("/sign-in");
